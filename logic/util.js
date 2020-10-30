@@ -1,15 +1,23 @@
 function Util() {
     function calculateTotalDistributedPassengers(data) {
-        let totalDistributedPassengers = data[0] + data[1] + data[2] + data[3];
+        let totalDistributedPassengers = 0;
+        let value;
+
+        for (value in data) {
+            totalDistributedPassengers += data[value];
+        }
 
         return totalDistributedPassengers;
     }
 
-    function calculateTotalNumberOfPassengers(passengers) {
-        const reducer = (total, current) => total + current;
-        const total = passengers.reduce(reducer);
+    function calculateTotalNumberOfPassengers(passengersArray) {
+        let totalNumberOfPassengers = 0;
+        let passengers;
+        for (passengers of passengersArray) {
+            totalNumberOfPassengers += passengers;
+        }
 
-        return total;
+        return totalNumberOfPassengers;
     }
 
     return {calculateTotalDistributedPassengers, calculateTotalNumberOfPassengers};

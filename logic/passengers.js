@@ -13,59 +13,50 @@ function Passengers() {
     function distributeAllSeatsToAllPassengers(vipPass, regPass, flights, busiSeats, ecoSeats) {
         // Logic to distribute all seats to all passengers
         let vipB = 0, vipE = 0, regB = 0, regE = 0;
+        let vipPassengersWithBusinessSeats = 0, vipPassengersWithEconomySeats = 0,
+            regularPassengersWithBusinessSeats = 0, regularPassengersWithEconomySeats = 0;
+        let availableBusinessSeats = flights * busiSeats;
+        let availableEconomySeats = flights * ecoSeats;
 
-        // If there are fewer vip passengers than business seats,
-        // Set all vips to business seats and subtract the available number of business seats
-        if (vipPass <= busiSeats) {
-            vipB = vipPass;
-            busiSeats -= vipPass;
-        } 
-        // Otherwise if there are more vip passengers than business seats,
-        // Put all vips in business seats and put the remaining vips in eco seats
-        else {
-            vipB = busiSeats;
-            if (vipPass - vipB < ecoSeats) {
-                vipE = vipPass - vipB;
-                ecoSeats -= vipE;
-            } else {
-                vipE = ecoSeats;
-                ecoSeats = 0;
+        // Configuration 
+        var vipBusinessConfig = {passengers: vipPass, seats: busiSeats};
+        vipPassengersWithBusinessSeats = updateConfiguration(vipBusinessConfig, busiSeats);
+
+        var vipEconomyConfig = {passengers: vipBusinessConfig.passengers, seats: ecoSeats};
+        vipPassengersWithBusinessSeats = updateConfiguration(vipEconomyConfig, busiSeats);
+
+        var regBusinessConfig = {passengers: regPass, seats:vipBusinessConfig.seats};
+        regularPassengersWithBusinessSeats = updateConfiguration(regBusinessConfig, busiSeats);
+
+        var regEconomyConfig = {passengers: regBusinessConfig.passengers, seats: vipEconomyConfig.seats};
+        regularPassengersWithEconomySeats = updateConfiguration(regEconomyConfig, ecoSeats);
+    
+        return {vipPassengersWithBusinessSeats: vipPassengersWithBusinessSeats,
+                vipPassengersWithEconomySeats: vipPassengersWithEconomySeats,
+                regularPassengersWithBusinessSeats: regularPassengersWithBusinessSeats,
+                regularPassengersWithEconomySeats: regularPassengersWithEconomySeats};
+    }
+    function updateConfiguration(configuration, seatsPerFlight) {
+        let passengersWithSeats = 0;
+
+        while (configuration.passengers > 0) {
+            if (configuration.seats > 0) {
+                if (configuration.passengers >= configuration.seats) {
+                    if (configuration.seats > configuration.seatsPerFlight) {
+                        configuration.passengers -= seatsPerFlight;
+                        configuration.seats -= seatsPerFlight;
+                        passengersWithSeats += seatsPerFlight;
+                    } else {
+                        configuration.passengers -= configuration.seats;
+                        passengersWithSeats += configuration.seats;
+                        configuration.seats = 0;
+                    }
+                } else {
+                    break;
+                }
             }
         }
-
-        // If there are still business seats, put regular passengers to busiSeats
-        if (busiSeats > 0) {
-            if (regPass <= busiSeats) {
-                regB = regPass;
-                busiSeats -= regPass;
-            } else {
-                regB = regPass - busiSeats;
-                busiSeats = 0;
-            }
-        }
-        // If there are still economy seats, put regular passengers in ecoSeats
-        if (ecoSeats > 0 && busiSeats == 0) {
-            if (regPass <= ecoSeats) {
-                regE = ecoSeats;
-                ecoSeats -= regPass;
-            } else {
-                regE = ecoSeats;
-                ecoSeats = 0;
-            }
-        }
-
-        // Return an object with the following data: 
-        return {
-            vipPassengersBusinessSeats: vipB,
-            vipPassengersEconomySeats: vipE,
-            regularPassengersBusinessSeats: regB,
-            regularPassengersEconomySeats: regE
-            
-            // vipPass: with busiSeats,
-            // vipPass: with ecoSeats,
-            // regPass: with busiSeats,
-            // regPass: with ecoSeats
-        }
+        return passengersWithSeats;
     }
 
     return {checkFlightCapacity, distributeAllSeatsToAllPassengers};
